@@ -1,10 +1,11 @@
-import Image from 'next/image';
 import styles from './page.module.css';
+import Login from '@/(components)/Login';
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <h1>Main page</h1>
+      <h1>Chatter Box</h1>
+      <Login />
     </main>
   );
 }
