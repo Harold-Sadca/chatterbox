@@ -13,6 +13,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import firebaseConfig from '@/firebase';
 
 function Copyright(props: any) {
   return (
@@ -39,6 +41,32 @@ const darkTheme = createTheme({
 });
 
 export default function Login() {
+  const handleGoogleLogin = async () => {
+    const { auth } = firebaseConfig;
+    const provider = new GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+    await signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        console.log(user, token);
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+  };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -109,7 +137,7 @@ export default function Login() {
               fullWidth
               variant='contained'
               sx={{ mt: 3, mb: 2 }}
-              onClick={() => console.log('google')}
+              onClick={() => handleGoogleLogin()}
             >
               Sign In With Google
             </Button>

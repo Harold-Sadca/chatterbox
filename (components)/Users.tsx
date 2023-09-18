@@ -28,12 +28,12 @@ export default function Users() {
     <List sx={style} component='nav' aria-label='users'>
       {mockUser.map((user, idx) => {
         return (
-          <>
-            <ListItem button key={idx}>
+          <div key={idx}>
+            <ListItem button>
               <ListItemText primary={user} />
             </ListItem>
             <Divider />
-          </>
+          </div>
         );
       })}
     </List>
