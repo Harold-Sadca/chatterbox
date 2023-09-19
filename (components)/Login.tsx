@@ -47,11 +47,8 @@ export default function Login() {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential?.accessToken;
-        // The signed-in user info.
         const user = result.user;
         console.log(user, token);
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
       })
       .catch((error) => {
         // Handle Errors here.
@@ -67,24 +64,19 @@ export default function Login() {
   const handleEmailLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
     signInWithEmailAndPassword(
       auth,
       data.get('email') as string,
       data.get('password') as string
     )
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
         console.log(user);
-        // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        console.log(errorMessage);
       });
   };
 
