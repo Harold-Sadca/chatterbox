@@ -13,7 +13,11 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import firebaseConfig from '@/firebase';
 
 function Copyright(props: any) {
@@ -23,14 +27,7 @@ function Copyright(props: any) {
       color='text.secondary'
       align='center'
       {...props}
-    >
-      {'Copyright © '}
-      <Link color='inherit' href='https://mui.com/'>
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
+    ></Typography>
   );
 }
 
@@ -41,8 +38,8 @@ const darkTheme = createTheme({
 });
 
 export default function Login() {
+  const { auth } = firebaseConfig;
   const handleGoogleLogin = async () => {
-    const { auth } = firebaseConfig;
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
     await signInWithPopup(auth, provider)
@@ -67,13 +64,28 @@ export default function Login() {
         // ...
       });
   };
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEmailLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
       email: data.get('email'),
       password: data.get('password'),
     });
+    signInWithEmailAndPassword(
+      auth,
+      data.get('email') as string,
+      data.get('password') as string
+    )
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
   };
 
   return (
@@ -96,7 +108,7 @@ export default function Login() {
           </Typography>
           <Box
             component='form'
-            onSubmit={handleSubmit}
+            onSubmit={handleEmailLogin}
             noValidate
             sx={{ mt: 1 }}
           >
