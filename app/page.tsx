@@ -6,8 +6,8 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <h1>Chatter Box</h1>
-      {/* <Login /> */}
-      <SignUp />
+      <Login />
+      {/* <SignUp /> */}
     </main>
   );
 }

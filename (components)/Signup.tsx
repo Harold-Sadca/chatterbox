@@ -13,6 +13,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import firebaseConfig from '@/firebase';
 
 const darkTheme = createTheme({
   palette: {
@@ -24,10 +26,20 @@ export default function SignUp() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const { auth } = firebaseConfig;
+    createUserWithEmailAndPassword(
+      auth,
+      data.get('email') as string,
+      data.get('password') as string
+    )
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
   };
 
   return (
@@ -55,27 +67,6 @@ export default function SignUp() {
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete='given-name'
-                  name='firstName'
-                  required
-                  fullWidth
-                  id='firstName'
-                  label='First Name'
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id='lastName'
-                  label='Last Name'
-                  name='lastName'
-                  autoComplete='family-name'
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
