@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
@@ -18,6 +18,7 @@ import {
   addDoc,
   getDoc,
 } from 'firebase/firestore';
+import { getUsers } from '@/utils/utils';
 
 const initialValue: TypeMessage = {
   id: '',
@@ -35,40 +36,8 @@ export default function ChatContainer() {
   console.log(currentUser);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  // const messagesRef = doc(db, 'chats', currentUser.uid);
 
   const handleSendMessage = async () => {
-    console.log('clicked');
-    const ref = doc(db, 'users', 'JrBfNIbYeBcnQRCYYT9d');
-    const docSnap = await getDoc(ref);
-    console.log(docSnap.data());
-    // try {
-    //   console.log('try', currentUser.uid);
-    //   const docRef = await addDoc(collection(db, 'users'), {
-    //     first: 'Ada',
-    //     last: 'Lovelace',
-    //     // born: 1815,
-    //   });
-    //   console.log('after');
-    //   console.log(docRef.id);
-    // } catch (error) {
-    //   console.log('');
-    //   console.error('Error adding document: ', error);
-    //   if (error.code === 'permission-denied') {
-    //     console.error(
-    //       'Firestore security rules might be blocking this operation.'
-    //     );
-    //   }
-    // }
-    // if (newMessage.trim() !== '') {
-    //   const message = { id: uuid(), text: newMessage, sender: currentUser };
-    //   setMessages([...messages, message]);
-    //   console.log(message);
-    //   await updateDoc(messagesRef, {
-    //     messages: arrayUnion(message),
-    //   });
-    //   setNewMessage('');
-    // }
     const usersCollectionRef = collection(db, 'users');
     const userDocRef = doc(usersCollectionRef, currentUser.uid);
     const messagesCollectionRef = collection(userDocRef, 'messages');
@@ -79,7 +48,16 @@ export default function ChatContainer() {
       date: Timestamp.now(),
     };
     await addDoc(messagesCollectionRef, message);
+    setMessages([...messages, message]);
+    setNewMessage('');
   };
+
+  useEffect(() => {
+    const userMessages = getUsers().then((res) => {
+      console.log(res);
+    });
+    console.log(userMessages);
+  }, []);
 
   return (
     <div className='chat-container'>
