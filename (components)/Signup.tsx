@@ -14,7 +14,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import firebaseConfig from '@/firebase';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '@/redux/features/currentUserSlice';
+import { TypeLoggedInUser } from '@/utils/types';
+import { auth } from '@/firebase';
+import { login } from '@/redux/features/loginSlice';
 
 const darkTheme = createTheme({
   palette: {
@@ -23,17 +27,19 @@ const darkTheme = createTheme({
 });
 
 export default function SignUp() {
+  const dispatch = useDispatch();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const { auth } = firebaseConfig;
     createUserWithEmailAndPassword(
       auth,
       data.get('email') as string,
       data.get('password') as string
     )
       .then((userCredential) => {
-        const user = userCredential.user;
+        const { email, uid } = userCredential.user;
+        const user = { email, uid } as TypeLoggedInUser;
+        dispatch(loginUser(user));
         console.log(user);
       })
       .catch((error) => {
@@ -99,9 +105,14 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent='flex-end'>
               <Grid item>
-                <Link href='#' variant='body2'>
+                <a
+                  href='#'
+                  onClick={() => {
+                    dispatch(login(true));
+                  }}
+                >
                   Already have an account? Sign in
-                </Link>
+                </a>
               </Grid>
             </Grid>
           </Box>

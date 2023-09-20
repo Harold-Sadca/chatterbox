@@ -1,5 +1,11 @@
 export interface TypeLoggedInUser {
-  email: String;
-  accessToken: String;
-  uid: String;
+  email: string;
+  accessToken?: string;
+  uid: string;
+}
+
+export interface TypeMessage {
+  id: string;
+  text: string;
+  sender: TypeLoggedInUser;
 }

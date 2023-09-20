@@ -18,7 +18,11 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import firebaseConfig from '@/firebase';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '@/redux/features/currentUserSlice';
+import { TypeLoggedInUser } from '@/utils/types';
+import { auth } from '@/firebase';
+import { signup } from '@/redux/features/loginSlice';
 
 function Copyright(props: any) {
   return (
@@ -38,7 +42,8 @@ const darkTheme = createTheme({
 });
 
 export default function Login() {
-  const { auth } = firebaseConfig;
+  const dispatch = useDispatch();
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
@@ -70,7 +75,9 @@ export default function Login() {
       data.get('password') as string
     )
       .then((userCredential) => {
-        const user = userCredential.user;
+        const { email, uid } = userCredential.user;
+        const user = { email, uid } as TypeLoggedInUser;
+        dispatch(loginUser(user));
         console.log(user);
       })
       .catch((error) => {
@@ -152,9 +159,14 @@ export default function Login() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href='#' variant='body2'>
+                <a
+                  href='#'
+                  onClick={() => {
+                    dispatch(signup(false));
+                  }}
+                >
                   {"Don't have an account? Sign Up"}
-                </Link>
+                </a>
               </Grid>
             </Grid>
           </Box>
