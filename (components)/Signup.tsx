@@ -17,8 +17,9 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '@/redux/features/currentUserSlice';
 import { TypeLoggedInUser } from '@/utils/types';
-import { auth } from '@/firebase';
+import { auth, db } from '@/firebase';
 import { login } from '@/redux/features/loginSlice';
+import { addDoc, collection } from 'firebase/firestore';
 
 const darkTheme = createTheme({
   palette: {
@@ -39,8 +40,11 @@ export default function SignUp() {
       .then((userCredential) => {
         const { email, uid } = userCredential.user;
         const user = { email, uid } as TypeLoggedInUser;
+        addDoc(collection(db, 'users'), {
+          email: data.get('email') as string,
+          uid: user.uid,
+        });
         dispatch(loginUser(user));
-        console.log(user);
       })
       .catch((error) => {
         const errorCode = error.code;

@@ -6,18 +6,8 @@ import { TypeMessage } from '@/utils/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
-import { db, storage } from '@/firebase';
-import {
-  arrayUnion,
-  collection,
-  doc,
-  getDocs,
-  serverTimestamp,
-  Timestamp,
-  updateDoc,
-  addDoc,
-  getDoc,
-} from 'firebase/firestore';
+import { db } from '@/firebase';
+import { collection, doc, Timestamp, addDoc } from 'firebase/firestore';
 import { getUsers } from '@/utils/utils';
 
 const initialValue: TypeMessage = {
@@ -33,7 +23,6 @@ export default function ChatContainer() {
   const currentUser = useSelector(
     (state: RootState) => state.currentUserReducer.value
   );
-  console.log(currentUser);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
 
@@ -51,13 +40,6 @@ export default function ChatContainer() {
     setMessages([...messages, message]);
     setNewMessage('');
   };
-
-  useEffect(() => {
-    const userMessages = getUsers().then((res) => {
-      console.log(res);
-    });
-    console.log(userMessages);
-  }, []);
 
   return (
     <div className='chat-container'>

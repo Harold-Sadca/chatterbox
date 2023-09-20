@@ -20,7 +20,6 @@ export async function getUsers() {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      console.log(data);
       users.push(data as TypeLoggedInUser);
     });
 

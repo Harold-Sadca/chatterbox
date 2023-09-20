@@ -53,7 +53,6 @@ export default function Login() {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential?.accessToken;
         const user = result.user;
-        console.log(user, token);
       })
       .catch((error) => {
         // Handle Errors here.
@@ -78,7 +77,6 @@ export default function Login() {
         const { email, uid } = userCredential.user;
         const user = { email, uid } as TypeLoggedInUser;
         dispatch(loginUser(user));
-        console.log(user);
       })
       .catch((error) => {
         const errorCode = error.code;
