@@ -8,38 +8,39 @@ import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
 import { db } from '@/firebase';
 import { collection, doc, Timestamp, addDoc } from 'firebase/firestore';
-import { getUsers } from '@/utils/utils';
-
-const initialValue: TypeMessage = {
-  id: '',
-  text: '',
-  sender: {
-    email: '',
-    uid: '',
-  },
-};
+import { fetchAllMessages, getUsers } from '@/utils/utils';
 
 export default function ChatContainer() {
   const currentUser = useSelector(
     (state: RootState) => state.currentUserReducer.value
   );
+  const recipient = useSelector(
+    (state: RootState) => state.recipientSliceReducer.value
+  );
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
 
   const handleSendMessage = async () => {
-    const usersCollectionRef = collection(db, 'users');
-    const userDocRef = doc(usersCollectionRef, currentUser.uid);
-    const messagesCollectionRef = collection(userDocRef, 'messages');
+    const messagesCollectionRef = collection(db, 'messages'); // Reference the "messages" collection
+
     const message = {
       id: uuid(),
       text: newMessage,
-      sender: currentUser,
+      senderUid: currentUser.uid,
+      recipientUid: recipient.uid,
       date: Timestamp.now(),
     };
-    await addDoc(messagesCollectionRef, message);
+
+    await addDoc(messagesCollectionRef, message); // Add the message to the "messages" collection
     setMessages([...messages, message]);
     setNewMessage('');
   };
+
+  useEffect(() => {
+    fetchAllMessages(currentUser.uid).then((res) => {
+      setMessages([...messages, ...res]);
+    });
+  }, []);
 
   return (
     <div className='chat-container'>

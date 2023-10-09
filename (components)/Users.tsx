@@ -5,9 +5,10 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { getUsers } from '@/utils/utils';
 import { useDispatch } from 'react-redux';
-import { setUsers } from '@/redux/features/allUsersSlice';
 import { TypeLoggedInUser } from '@/utils/types';
 import Loading from './Loading';
+import { setUsers } from '@/redux/features/allUsersSlice';
+import { setRecipient } from '@/redux/features/recipientSlice';
 
 const style = {
   width: '100%',
@@ -29,12 +30,16 @@ export default function Users() {
   if (!loaded) {
     return <Loading />;
   }
+
+  const handleSetRecipient = (user: TypeLoggedInUser) => {
+    dispatch(setRecipient(user));
+  };
   return (
     <List sx={style} component='nav' aria-label='users'>
       {users.map((user, idx) => {
         return (
-          <div key={idx}>
-            <ListItem button>
+          <div key={user.uid}>
+            <ListItem button onClick={() => handleSetRecipient(user)}>
               <ListItemText primary={user.email} />
             </ListItem>
             <Divider />

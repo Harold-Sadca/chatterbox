@@ -6,6 +6,7 @@ export interface TypeLoggedInUser {
 
 export interface TypeMessage {
   id: string;
+  recipientUid: string;
   text: string;
-  sender: TypeLoggedInUser;
+  senderUid: string;
 }
