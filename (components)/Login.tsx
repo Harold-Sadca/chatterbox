@@ -56,6 +56,7 @@ export default function Login() {
       const user = result.user;
 
       const usersCollectionRef = collection(db, 'users');
+      console.log(user);
       await addDoc(usersCollectionRef, user);
     } catch (error: any) {
       if (error instanceof FirebaseError) {

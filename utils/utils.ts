@@ -31,33 +31,12 @@ export async function getUsers() {
   }
 }
 
-export const fetchUserMessages = async (userId: string) => {
-  const userDocRef = doc(db, 'users', userId);
-  const messagesCollectionRef = collection(userDocRef, 'messages');
-
-  try {
-    const querySnapshot = await getDocs(messagesCollectionRef);
-
-    const userMessages: TypeMessage[] = [];
-
-    querySnapshot.forEach((doc) => {
-      const messageData = doc.data();
-      userMessages.push(messageData as TypeMessage);
-    });
-
-    return userMessages;
-  } catch (error) {
-    console.error('Error fetching user messages:', error);
-    throw error;
-  }
-};
-
 export const fetchAllMessages = async (userUid: string) => {
   const messagesCollectionRef = collection(db, 'messages');
   const q = query(
     messagesCollectionRef,
     where('senderUid', '==', userUid), // Fetch sent messages
-    orderBy('timestamp', 'desc')
+    orderBy('date', 'desc')
   );
 
   try {
@@ -73,7 +52,7 @@ export const fetchAllMessages = async (userUid: string) => {
     const receivedMessagesQuery = query(
       messagesCollectionRef,
       where('recipientUid', '==', userUid), // Fetch received messages
-      orderBy('timestamp', 'desc')
+      orderBy('date', 'desc')
     );
 
     const receivedMessagesSnapshot = await getDocs(receivedMessagesQuery);
@@ -82,6 +61,8 @@ export const fetchAllMessages = async (userUid: string) => {
       const messageData = doc.data();
       allMessages.push(messageData as TypeMessage);
     });
+
+    allMessages.sort((a, b) => b.date.toMillis() - a.date.toMillis());
 
     return allMessages;
   } catch (error) {

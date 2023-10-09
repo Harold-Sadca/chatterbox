@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface TypeLoggedInUser {
   email: string;
   accessToken?: string;
@@ -9,4 +11,5 @@ export interface TypeMessage {
   recipientUid: string;
   text: string;
   senderUid: string;
+  date: Timestamp;
 }
