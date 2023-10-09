@@ -21,8 +21,10 @@ import {
 import { useDispatch } from 'react-redux';
 import { loginUser } from '@/redux/features/currentUserSlice';
 import { TypeLoggedInUser } from '@/utils/types';
-import { auth } from '@/firebase';
+import { auth, db } from '@/firebase';
 import { signup } from '@/redux/features/loginSlice';
+import { addDoc, collection } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
 
 function Copyright(props: any) {
   return (
@@ -43,28 +45,40 @@ const darkTheme = createTheme({
 
 export default function Login() {
   const dispatch = useDispatch();
-
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-    await signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        const user = result.user;
-      })
-      .catch((error) => {
-        // Handle Errors here.
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      const user = result.user;
+
+      const usersCollectionRef = collection(db, 'users');
+      await addDoc(usersCollectionRef, user);
+    } catch (error: any) {
+      if (error instanceof FirebaseError) {
         const errorCode = error.code;
         const errorMessage = error.message;
         // The email of the user's account used.
-        const email = error.customData.email;
+        const email = (error as FirebaseError).customData?.email; // Cast to FirebaseError.
         // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
+        const credential = GoogleAuthProvider.credentialFromError(
+          error as FirebaseError
+        );
+        console.log({
+          errorCode,
+          errorMessage,
+          email,
+          credential,
+        });
+      } else {
+        console.log(error);
+      }
+    }
   };
+
   const handleEmailLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);

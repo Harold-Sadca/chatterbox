@@ -19,26 +19,17 @@ import { useDispatch } from 'react-redux';
 import { loginUser } from '@/redux/features/currentUserSlice';
 
 export default function Navbar() {
-  // const [auth, setAuth] = React.useState(true);
   const dispatch = useDispatch();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setAuth(event.target.checked);
-  // };
-
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
         const { email, uid } = user;
         const loggedUser = { email, uid } as TypeLoggedInUser;
         console.log(loggedUser);
         dispatch(loginUser(loggedUser));
-        router.push('/chatbox');
-        // ...
       } else {
         // User is signed out
         // ...
