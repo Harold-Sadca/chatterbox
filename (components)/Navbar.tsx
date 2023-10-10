@@ -28,7 +28,6 @@ export default function Navbar() {
       if (user) {
         const { email, uid } = user;
         const loggedUser = { email, uid } as TypeLoggedInUser;
-        console.log(loggedUser);
         dispatch(loginUser(loggedUser));
       } else {
         // User is signed out

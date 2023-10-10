@@ -4,11 +4,14 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { getUsers } from '@/utils/utils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { TypeLoggedInUser } from '@/utils/types';
 import Loading from './Loading';
 import { setUsers } from '@/redux/features/allUsersSlice';
 import { setRecipient } from '@/redux/features/recipientSlice';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from '@/firebase';
+import { RootState } from '@/redux/store';
 
 const style = {
   width: '100%',
@@ -17,16 +20,37 @@ const style = {
 };
 
 export default function Users() {
+  const dispatch = useDispatch();
+  const currentUser = useSelector(
+    (state: RootState) => state.currentUserReducer.value
+  );
   const [users, setUsersState] = useState<TypeLoggedInUser[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const dispatch = useDispatch();
   useEffect(() => {
-    getUsers().then((res) => {
+    if (!currentUser.uid) {
+      return;
+    }
+    getUsers(currentUser.uid).then((res) => {
       dispatch(setUsers(res));
       setUsersState(res);
       setLoaded(true);
     });
-  }, []);
+    const usersCollectionRef = collection(db, 'users');
+    const q = query(usersCollectionRef, where('uid', '!=', currentUser.uid));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newUsers = snapshot
+        .docChanges()
+        .map((change) => change.doc.data()) as TypeLoggedInUser[];
+
+      setUsersState([...users, ...newUsers]);
+    });
+
+    return () => {
+      // Unsubscribe from the real-time listener when the component unmounts
+      unsubscribe();
+    };
+  }, [currentUser.uid]);
   if (!loaded) {
     return <Loading />;
   }
@@ -36,7 +60,7 @@ export default function Users() {
   };
   return (
     <List sx={style} component='nav' aria-label='users'>
-      {users.map((user, idx) => {
+      {users.map((user) => {
         return (
           <div key={user.uid}>
             <ListItem button onClick={() => handleSetRecipient(user)}>

@@ -10,10 +10,10 @@ import {
 } from 'firebase/firestore';
 import { TypeLoggedInUser, TypeMessage } from './types';
 
-export async function getUsers() {
+export async function getUsers(userUid: string) {
   const usersRef = collection(db, 'users');
 
-  const q = query(usersRef);
+  const q = query(usersRef, where('uid', '!=', userUid));
 
   try {
     const querySnapshot = await getDocs(q);

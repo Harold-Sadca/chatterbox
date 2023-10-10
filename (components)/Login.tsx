@@ -23,7 +23,7 @@ import { loginUser } from '@/redux/features/currentUserSlice';
 import { TypeLoggedInUser } from '@/utils/types';
 import { auth, db } from '@/firebase';
 import { signup } from '@/redux/features/loginSlice';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, setDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 
 function Copyright(props: any) {
@@ -53,12 +53,24 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
-      const user = result.user;
+      const { email, uid } = result.user;
 
       const usersCollectionRef = collection(db, 'users');
-      console.log(user);
-      await addDoc(usersCollectionRef, user);
+      const userDocRef = doc(usersCollectionRef, uid); // Reference the user document by UID
+
+      const userSnapshot = await getDoc(userDocRef); // Check if the document exists
+
+      if (userSnapshot.exists()) {
+        // The user document already exists, you can update it here if needed
+        console.log('User already exists:', userSnapshot.data());
+      } else {
+        // The user document doesn't exist, create a new one
+        const user = { email, uid };
+        await setDoc(userDocRef, user); // Use setDoc to create a new document
+        console.log('New user created:', user);
+      }
     } catch (error: any) {
+      console.error('Error:', error);
       if (error instanceof FirebaseError) {
         const errorCode = error.code;
         const errorMessage = error.message;
