@@ -7,7 +7,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
 import { db } from '@/firebase';
-import { collection, Timestamp, addDoc } from 'firebase/firestore';
+import {
+  collection,
+  Timestamp,
+  addDoc,
+  where,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 import { fetchAllMessages, getUsers } from '@/utils/utils';
 import Loading from './Loading';
 
@@ -46,6 +54,28 @@ export default function ChatContainer() {
       setMessages([...messages, ...res]);
       setLoading(false);
     });
+    const messagesCollectionRef = collection(db, 'messages');
+    const q = query(
+      messagesCollectionRef,
+      where('recipientUid', '==', currentUser.uid),
+      orderBy('date', 'desc') // Order by date
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot
+        .docChanges()
+        .map((change) => change.doc.data()) as TypeMessage[];
+
+      setMessages((prevMessages: TypeMessage[]) => [
+        ...prevMessages,
+        ...newMessages,
+      ]);
+    });
+
+    return () => {
+      // Unsubscribe from the real-time listener when the component unmounts
+      unsubscribe();
+    };
   }, [currentUser.uid]);
 
   return (
