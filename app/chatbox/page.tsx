@@ -14,8 +14,10 @@ export default function Chatbox() {
   return (
     <main className='container'>
       <Navbar />
-      <Users />
-      <ChatContainer />
+      <section className='chat-body'>
+        <Users />
+        <ChatContainer />
+      </section>
     </main>
   );
 }

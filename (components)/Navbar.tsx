@@ -56,12 +56,18 @@ export default function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position='static'>
+      <AppBar
+        position='static'
+        sx={{ backgroundColor: 'var(--secondary-colour)' }}
+      >
         <Toolbar>
-          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+          <Typography
+            variant='h6'
+            component='div'
+            sx={{ flexGrow: 1, color: 'var(--secondary-colour)' }}
+          >
             Contacts
           </Typography>
-
           <IconButton
             size='large'
             aria-label='account of current user'

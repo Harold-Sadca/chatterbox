@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { fetchAllMessages, getUsers } from '@/utils/utils';
 import Loading from './Loading';
+import '../(css)/chatbox.css';
 
 export default function ChatContainer() {
   const currentUser = useSelector(
@@ -84,29 +85,50 @@ export default function ChatContainer() {
         <Loading />
       ) : (
         <>
-          <div className='message-container'>
-            {messages.map((message, index) => (
-              <div className='message' key={index}>
-                {message.text}
+          {recipient.uid ? (
+            <div className='chats'>
+              {' '}
+              <div className='messages-container'>
+                {messages.map((message, index) =>
+                  message.senderUid == currentUser.uid ? (
+                    <div className='sent' key={index}>
+                      {message.text}
+                    </div>
+                  ) : (
+                    <div className='received' key={index}>
+                      {message.text}
+                    </div>
+                  )
+                )}
               </div>
-            ))}
-          </div>
-          <div className='input-container'>
-            <TextField
-              fullWidth
-              label='Type your message...'
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              id='fullWidth'
-            />
-            <Button
-              variant='contained'
-              onClick={handleSendMessage}
-              endIcon={<SendIcon />}
-            >
-              Send
-            </Button>
-          </div>
+              <div className='input-container'>
+                <TextField
+                  fullWidth
+                  label='Type your message...'
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  id='fullWidth'
+                  style={{
+                    backgroundColor: 'var(--background-colour)',
+                    color: 'var(--text-colour)',
+                    margin: '0 2rem 0 0',
+                  }}
+                />
+
+                <Button
+                  variant='contained'
+                  onClick={handleSendMessage}
+                  endIcon={<SendIcon />}
+                  style={{
+                    backgroundColor: 'var(--secondary-colour)',
+                    color: 'var(--text-colour)',
+                  }}
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </>
       )}
     </div>

@@ -59,17 +59,14 @@ export default function Users() {
     dispatch(setRecipient(user));
   };
   return (
-    <List sx={style} component='nav' aria-label='users'>
+    <div className='users-container'>
       {users.map((user) => {
         return (
-          <div key={user.uid}>
-            <ListItem button onClick={() => handleSetRecipient(user)}>
-              <ListItemText primary={user.email} />
-            </ListItem>
-            <Divider />
+          <div key={user.uid} className='single-user'>
+            <p onClick={() => handleSetRecipient(user)}>{user.email}</p>
           </div>
         );
       })}
-    </List>
+    </div>
   );
 }
