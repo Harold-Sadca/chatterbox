@@ -38,6 +38,7 @@ export default function SignUp() {
       data.get('password') as string
     )
       .then((userCredential) => {
+        console.log('test');
         const { email, uid } = userCredential.user;
         const user = { email, uid } as TypeLoggedInUser;
         addDoc(collection(db, 'users'), {
@@ -47,6 +48,7 @@ export default function SignUp() {
         dispatch(loginUser(user));
       })
       .catch((error) => {
+        console.log(error);
         const errorCode = error.code;
         const errorMessage = error.message;
       });
