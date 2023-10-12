@@ -30,6 +30,7 @@ export default function ChatContainer() {
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
 
   const handleSendMessage = async () => {
     const messagesCollectionRef = collection(db, 'messages'); // Reference the "messages" collection
@@ -79,6 +80,15 @@ export default function ChatContainer() {
     };
   }, [currentUser.uid]);
 
+  useEffect(() => {
+    setDisplayMessage(
+      messages.filter(
+        (mes) =>
+          mes.senderUid == recipient.uid || mes.senderUid == recipient.uid
+      )
+    );
+  }, [recipient.uid]);
+
   return (
     <div className='chat-container'>
       {loading ? (
@@ -89,7 +99,7 @@ export default function ChatContainer() {
             <div className='chats'>
               {' '}
               <div className='messages-container'>
-                {messages.map((message, index) =>
+                {displayMessage.map((message, index) =>
                   message.senderUid == currentUser.uid ? (
                     <div className='sent' key={index}>
                       {message.text}

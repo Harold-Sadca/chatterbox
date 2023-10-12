@@ -62,9 +62,13 @@ export default function Users() {
     <div className='users-container'>
       {users.map((user) => {
         return (
-          <div key={user.uid} className='single-user'>
-            <p onClick={() => handleSetRecipient(user)}>{user.email}</p>
-          </div>
+          <p
+            key={user.uid}
+            className='single-user'
+            onClick={() => handleSetRecipient(user)}
+          >
+            {user.email}
+          </p>
         );
       })}
     </div>
