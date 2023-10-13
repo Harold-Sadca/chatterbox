@@ -62,7 +62,7 @@ export const fetchAllMessages = async (userUid: string) => {
       allMessages.push(messageData as TypeMessage);
     });
 
-    allMessages.sort((a, b) => b.date.toMillis() - a.date.toMillis());
+    allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
 
     return allMessages;
   } catch (error) {

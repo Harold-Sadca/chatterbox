@@ -27,10 +27,10 @@ export default function ChatContainer() {
   const recipient = useSelector(
     (state: RootState) => state.recipientSliceReducer.value
   );
+  const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
-  const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
 
   const handleSendMessage = async () => {
     const messagesCollectionRef = collection(db, 'messages'); // Reference the "messages" collection
@@ -44,6 +44,7 @@ export default function ChatContainer() {
     };
 
     await addDoc(messagesCollectionRef, message); // Add the message to the "messages" collection
+    setDisplayMessage([...displayMessage, message]);
     setMessages([...messages, message]);
     setNewMessage('');
   };
@@ -56,6 +57,45 @@ export default function ChatContainer() {
       setMessages([...messages, ...res]);
       setLoading(false);
     });
+    // const messagesCollectionRef = collection(db, 'messages');
+    // const q = query(
+    //   messagesCollectionRef,
+    //   where('recipientUid', '==', currentUser.uid),
+    //   orderBy('date', 'desc') // Order by date
+    // );
+
+    // const unsubscribe = onSnapshot(q, (snapshot) => {
+    //   const newMessages = snapshot
+    //     .docChanges()
+    //     .map((change) => change.doc.data()) as TypeMessage[];
+
+    //   setDisplayMessage((prevMessages: TypeMessage[]) => [
+    //     ...prevMessages,
+    //     ...newMessages.filter(
+    //       (mes) =>
+    //         mes.senderUid == recipient.uid || mes.recipientUid == recipient.uid
+    //     ),
+    //   ]);
+    //   console.log('tester');
+    //   setMessages((prevMessages: TypeMessage[]) => [
+    //     ...prevMessages,
+    //     ...newMessages,
+    //   ]);
+    // });
+
+    // return () => {
+    //   // Unsubscribe from the real-time listener when the component unmounts
+    //   unsubscribe();
+    // };
+  }, [currentUser.uid]);
+
+  useEffect(() => {
+    setDisplayMessage(
+      messages.filter(
+        (mes) =>
+          mes.senderUid == recipient.uid || mes.recipientUid == recipient.uid
+      )
+    );
     const messagesCollectionRef = collection(db, 'messages');
     const q = query(
       messagesCollectionRef,
@@ -68,25 +108,17 @@ export default function ChatContainer() {
         .docChanges()
         .map((change) => change.doc.data()) as TypeMessage[];
 
-      setMessages((prevMessages: TypeMessage[]) => [
+      setDisplayMessage((prevMessages: TypeMessage[]) => [
         ...prevMessages,
-        ...newMessages,
+        ...newMessages.filter((mes) => mes.senderUid == recipient.uid),
       ]);
+      console.log('tester');
     });
 
     return () => {
       // Unsubscribe from the real-time listener when the component unmounts
       unsubscribe();
     };
-  }, [currentUser.uid]);
-
-  useEffect(() => {
-    setDisplayMessage(
-      messages.filter(
-        (mes) =>
-          mes.senderUid == recipient.uid || mes.senderUid == recipient.uid
-      )
-    );
   }, [recipient.uid]);
 
   return (
@@ -99,15 +131,19 @@ export default function ChatContainer() {
             <div className='chats'>
               {' '}
               <div className='messages-container'>
-                {displayMessage.map((message, index) =>
+                {displayMessage.map((message) =>
                   message.senderUid == currentUser.uid ? (
-                    <div className='sent' key={index}>
-                      {message.text}
-                    </div>
+                    <section key={message.id} className='sent'>
+                      <section className='msgs'>
+                        <p className='content'>{message.text}</p>
+                      </section>
+                    </section>
                   ) : (
-                    <div className='received' key={index}>
-                      {message.text}
-                    </div>
+                    <section key={message.id} className='received'>
+                      <section className='msgs'>
+                        <p className='content'>{message.text}</p>
+                      </section>
+                    </section>
                   )
                 )}
               </div>
