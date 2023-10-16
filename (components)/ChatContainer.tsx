@@ -17,7 +17,7 @@ import {
   orderBy,
   query,
 } from 'firebase/firestore';
-import { fetchAllMessages, getUsers } from '@/utils/utils';
+import { fetchAllMessages } from '@/utils/utils';
 import Loading from './Loading';
 import '../(css)/chatbox.css';
 
@@ -58,48 +58,8 @@ export default function ChatContainer() {
       return;
     }
 
-    const messagesCollectionRef = collection(db, 'messages');
-    const receivedQuery = query(
-      messagesCollectionRef,
-      where('recipientUid', '==', currentUser.uid),
-      orderBy('date', 'desc')
-    );
-
-    const sentQuery = query(
-      messagesCollectionRef,
-      where('senderUid', '==', currentUser.uid),
-      orderBy('date', 'desc')
-    );
-
-    const sentUnsubscribe = onSnapshot(sentQuery, (snapshot) => {
-      const newSentMessages = snapshot
-        .docChanges()
-        .map((change) => change.doc.data()) as TypeMessage[];
-
-      setSentMessages((prevSentMessages) => [
-        ...prevSentMessages,
-        ...newSentMessages,
-      ]);
-    });
-
-    const receivedUnsubscribe = onSnapshot(receivedQuery, (snapshot) => {
-      const newReceivedMessages = snapshot
-        .docChanges()
-        .map((change) => change.doc.data()) as TypeMessage[];
-
-      setReceivedMessages((prevReceivedMessages) => [
-        ...prevReceivedMessages,
-        ...newReceivedMessages,
-      ]);
-    });
-
+    const unsubscribe = fetchAllMessages(currentUser.uid, setMessages);
     setLoading(false);
-
-    return () => {
-      // Unsubscribe from the real-time listeners when the component unmounts
-      sentUnsubscribe();
-      receivedUnsubscribe();
-    };
   }, [currentUser.uid]);
 
   useEffect(() => {

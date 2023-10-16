@@ -50,24 +50,31 @@ export const fetchAllMessages = async (
 
   const allMessages: TypeMessage[] = [];
 
-  try {
-    const sentQuerySnapshot = await getDocs(sentQuery);
-    const receivedQuerySnapshot = await getDocs(receivedQuery);
+  const sentUnsubscribe = onSnapshot(sentQuery, (sentSnapshot) => {
+    const newSentMessages = sentSnapshot
+      .docChanges()
+      .map((change) => change.doc.data()) as TypeMessage[];
 
-    sentQuerySnapshot.forEach((doc) => {
-      allMessages.push(doc.data() as TypeMessage);
-    });
-
-    receivedQuerySnapshot.forEach((doc) => {
-      allMessages.push(doc.data() as TypeMessage);
-    });
-
+    allMessages.push(...newSentMessages);
     allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
-    console.log(allMessages);
     updateMessages([...allMessages]);
-  } catch (error) {
-    console.log(error);
-  }
+  });
+
+  const receivedUnsubscribe = onSnapshot(receivedQuery, (receivedSnapshot) => {
+    const newReceivedMessages = receivedSnapshot
+      .docChanges()
+      .map((change) => change.doc.data()) as TypeMessage[];
+
+    allMessages.push(...newReceivedMessages);
+    allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
+    updateMessages([...allMessages]);
+  });
+
+  return () => {
+    // Unsubscribe from the real-time listeners when needed
+    sentUnsubscribe();
+    receivedUnsubscribe();
+  };
 };
 // export const fetchAllMessages = async (
 //   userUid: string,
