@@ -31,11 +31,6 @@ export default function Users() {
     if (!currentUser.uid) {
       return;
     }
-    // getUsers(currentUser.uid).then((res) => {
-    //   dispatch(setUsers(res));
-    //   setUsersState(res);
-    //   setLoaded(true);
-    // });
     const usersCollectionRef = collection(db, 'users');
     const q = query(usersCollectionRef, where('uid', '!=', currentUser.uid));
 

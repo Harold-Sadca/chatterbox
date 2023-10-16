@@ -32,6 +32,8 @@ export default function ChatContainer() {
   const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
+  const [sentMessages, setSentMessages] = useState<TypeMessage[]>([]);
+  const [receivedMessages, setReceivedMessages] = useState<TypeMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const handleSendMessage = async () => {
@@ -55,11 +57,57 @@ export default function ChatContainer() {
     if (!currentUser.uid) {
       return;
     }
-    fetchAllMessages(currentUser.uid, setMessages);
-    console.log(messages);
+
+    const messagesCollectionRef = collection(db, 'messages');
+    const receivedQuery = query(
+      messagesCollectionRef,
+      where('recipientUid', '==', currentUser.uid),
+      orderBy('date', 'desc')
+    );
+
+    const sentQuery = query(
+      messagesCollectionRef,
+      where('senderUid', '==', currentUser.uid),
+      orderBy('date', 'desc')
+    );
+
+    const sentUnsubscribe = onSnapshot(sentQuery, (snapshot) => {
+      const newSentMessages = snapshot
+        .docChanges()
+        .map((change) => change.doc.data()) as TypeMessage[];
+
+      setSentMessages((prevSentMessages) => [
+        ...prevSentMessages,
+        ...newSentMessages,
+      ]);
+    });
+
+    const receivedUnsubscribe = onSnapshot(receivedQuery, (snapshot) => {
+      const newReceivedMessages = snapshot
+        .docChanges()
+        .map((change) => change.doc.data()) as TypeMessage[];
+
+      setReceivedMessages((prevReceivedMessages) => [
+        ...prevReceivedMessages,
+        ...newReceivedMessages,
+      ]);
+    });
 
     setLoading(false);
+
+    return () => {
+      // Unsubscribe from the real-time listeners when the component unmounts
+      sentUnsubscribe();
+      receivedUnsubscribe();
+    };
   }, [currentUser.uid]);
+
+  useEffect(() => {
+    // Combine and sort messages after updates
+    const allMessages = [...sentMessages, ...receivedMessages];
+    allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
+    setMessages(allMessages);
+  }, [sentMessages, receivedMessages]);
 
   useEffect(() => {
     setDisplayMessage(
@@ -68,8 +116,7 @@ export default function ChatContainer() {
           mes.senderUid === recipient.uid || mes.recipientUid === recipient.uid
       )
     );
-    console.log(messages);
-  }, [recipient.uid]);
+  }, [recipient.uid, messages]);
 
   return (
     <div className='chat-container'>
