@@ -31,22 +31,8 @@ export default function Users() {
     if (!currentUser.uid) {
       return;
     }
-    const usersCollectionRef = collection(db, 'users');
-    const q = query(usersCollectionRef, where('uid', '!=', currentUser.uid));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newUsers = snapshot
-        .docChanges()
-        .map((change) => change.doc.data()) as TypeLoggedInUser[];
-
-      setUsersState((prevVal) => [...prevVal, ...newUsers]);
-    });
-
+    const unsubscribe = getUsers(currentUser.uid, setUsersState);
     setLoaded(true);
-    return () => {
-      // Unsubscribe from the real-time listener when the component unmounts
-      unsubscribe();
-    };
   }, [currentUser.uid]);
   if (!loaded) {
     return <Loading />;
