@@ -7,6 +7,7 @@ import { getUsers } from '@/utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { TypeLoggedInUser } from '@/utils/types';
 import Loading from './Loading';
+import Avatar from '@mui/material/Avatar';
 import { setUsers } from '@/redux/features/allUsersSlice';
 import { setRecipient } from '@/redux/features/recipientSlice';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
@@ -30,11 +31,11 @@ export default function Users() {
     if (!currentUser.uid) {
       return;
     }
-    getUsers(currentUser.uid).then((res) => {
-      dispatch(setUsers(res));
-      setUsersState(res);
-      setLoaded(true);
-    });
+    // getUsers(currentUser.uid).then((res) => {
+    //   dispatch(setUsers(res));
+    //   setUsersState(res);
+    //   setLoaded(true);
+    // });
     const usersCollectionRef = collection(db, 'users');
     const q = query(usersCollectionRef, where('uid', '!=', currentUser.uid));
 
@@ -43,9 +44,10 @@ export default function Users() {
         .docChanges()
         .map((change) => change.doc.data()) as TypeLoggedInUser[];
 
-      setUsersState([...users, ...newUsers]);
+      setUsersState((prevVal) => [...prevVal, ...newUsers]);
     });
 
+    setLoaded(true);
     return () => {
       // Unsubscribe from the real-time listener when the component unmounts
       unsubscribe();
@@ -62,13 +64,14 @@ export default function Users() {
     <div className='users-container'>
       {users.map((user) => {
         return (
-          <p
+          <section
             key={user.uid}
-            className='single-user'
+            className='chat-recipient user'
             onClick={() => handleSetRecipient(user)}
           >
-            {user.email}
-          </p>
+            <Avatar>{user.email.split('')[0].toLocaleUpperCase()}</Avatar>
+            <p className='chat-recipient-name'>{user.email}</p>
+          </section>
         );
       })}
     </div>

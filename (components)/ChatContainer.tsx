@@ -6,6 +6,7 @@ import { TypeMessage } from '@/utils/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
+import Avatar from '@mui/material/Avatar';
 import { db } from '@/firebase';
 import {
   collection,
@@ -27,6 +28,7 @@ export default function ChatContainer() {
   const recipient = useSelector(
     (state: RootState) => state.recipientSliceReducer.value
   );
+
   const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
@@ -53,72 +55,20 @@ export default function ChatContainer() {
     if (!currentUser.uid) {
       return;
     }
-    fetchAllMessages(currentUser.uid).then((res) => {
-      setMessages([...messages, ...res]);
-      setLoading(false);
-    });
-    // const messagesCollectionRef = collection(db, 'messages');
-    // const q = query(
-    //   messagesCollectionRef,
-    //   where('recipientUid', '==', currentUser.uid),
-    //   orderBy('date', 'desc') // Order by date
-    // );
+    fetchAllMessages(currentUser.uid, setMessages);
+    console.log(messages);
 
-    // const unsubscribe = onSnapshot(q, (snapshot) => {
-    //   const newMessages = snapshot
-    //     .docChanges()
-    //     .map((change) => change.doc.data()) as TypeMessage[];
-
-    //   setDisplayMessage((prevMessages: TypeMessage[]) => [
-    //     ...prevMessages,
-    //     ...newMessages.filter(
-    //       (mes) =>
-    //         mes.senderUid == recipient.uid || mes.recipientUid == recipient.uid
-    //     ),
-    //   ]);
-    //   console.log('tester');
-    //   setMessages((prevMessages: TypeMessage[]) => [
-    //     ...prevMessages,
-    //     ...newMessages,
-    //   ]);
-    // });
-
-    // return () => {
-    //   // Unsubscribe from the real-time listener when the component unmounts
-    //   unsubscribe();
-    // };
+    setLoading(false);
   }, [currentUser.uid]);
 
   useEffect(() => {
     setDisplayMessage(
       messages.filter(
-        (mes) =>
-          mes.senderUid == recipient.uid || mes.recipientUid == recipient.uid
+        (mes: TypeMessage) =>
+          mes.senderUid === recipient.uid || mes.recipientUid === recipient.uid
       )
     );
-    const messagesCollectionRef = collection(db, 'messages');
-    const q = query(
-      messagesCollectionRef,
-      where('recipientUid', '==', currentUser.uid),
-      orderBy('date', 'desc') // Order by date
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot
-        .docChanges()
-        .map((change) => change.doc.data()) as TypeMessage[];
-
-      setDisplayMessage((prevMessages: TypeMessage[]) => [
-        ...prevMessages,
-        ...newMessages.filter((mes) => mes.senderUid == recipient.uid),
-      ]);
-      console.log('tester');
-    });
-
-    return () => {
-      // Unsubscribe from the real-time listener when the component unmounts
-      unsubscribe();
-    };
+    console.log(messages);
   }, [recipient.uid]);
 
   return (
@@ -129,7 +79,12 @@ export default function ChatContainer() {
         <>
           {recipient.uid ? (
             <div className='chats'>
-              {' '}
+              <section className='chat-recipient'>
+                <Avatar>
+                  {recipient.email.split('')[0].toLocaleUpperCase()}
+                </Avatar>
+                <p className='chat-recipient-name'>{recipient.email}</p>
+              </section>
               <div className='messages-container'>
                 {displayMessage.map((message) =>
                   message.senderUid == currentUser.uid ? (
@@ -149,26 +104,19 @@ export default function ChatContainer() {
               </div>
               <div className='input-container'>
                 <TextField
+                  className='text-input'
                   fullWidth
                   label='Type your message...'
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   id='fullWidth'
-                  style={{
-                    backgroundColor: 'var(--background-colour)',
-                    color: 'var(--text-colour)',
-                    margin: '0 2rem 0 0',
-                  }}
                 />
 
                 <Button
+                  className='send-button'
                   variant='contained'
                   onClick={handleSendMessage}
                   endIcon={<SendIcon />}
-                  style={{
-                    backgroundColor: 'var(--secondary-colour)',
-                    color: 'var(--text-colour)',
-                  }}
                 >
                   Send
                 </Button>

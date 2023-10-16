@@ -31,42 +31,83 @@ export async function getUsers(userUid: string) {
   }
 }
 
-export const fetchAllMessages = async (userUid: string) => {
+export const fetchAllMessages = async (
+  userUid: string,
+  updateMessages: (messages: TypeMessage[]) => void
+) => {
   const messagesCollectionRef = collection(db, 'messages');
-  const q = query(
+  const receivedQuery = query(
+    messagesCollectionRef,
+    where('recipientUid', '==', userUid), // Fetch received messages
+    orderBy('date', 'desc')
+  );
+
+  const sentQuery = query(
     messagesCollectionRef,
     where('senderUid', '==', userUid), // Fetch sent messages
     orderBy('date', 'desc')
   );
 
+  const allMessages: TypeMessage[] = [];
+
   try {
-    const querySnapshot = await getDocs(q);
+    const sentQuerySnapshot = await getDocs(sentQuery);
+    const receivedQuerySnapshot = await getDocs(receivedQuery);
 
-    const allMessages: TypeMessage[] = [];
-
-    querySnapshot.forEach((doc) => {
-      const messageData = doc.data();
-      allMessages.push(messageData as TypeMessage);
+    sentQuerySnapshot.forEach((doc) => {
+      allMessages.push(doc.data() as TypeMessage);
     });
 
-    const receivedMessagesQuery = query(
-      messagesCollectionRef,
-      where('recipientUid', '==', userUid), // Fetch received messages
-      orderBy('date', 'desc')
-    );
-
-    const receivedMessagesSnapshot = await getDocs(receivedMessagesQuery);
-
-    receivedMessagesSnapshot.forEach((doc) => {
-      const messageData = doc.data();
-      allMessages.push(messageData as TypeMessage);
+    receivedQuerySnapshot.forEach((doc) => {
+      allMessages.push(doc.data() as TypeMessage);
     });
 
     allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
-
-    return allMessages;
+    console.log(allMessages);
+    updateMessages([...allMessages]);
   } catch (error) {
-    console.error('Error fetching messages:', error);
-    throw error;
+    console.log(error);
   }
 };
+// export const fetchAllMessages = async (
+//   userUid: string,
+//   updateMessages: (messages: TypeMessage[]) => void
+// ) => {
+//   const messagesCollectionRef = collection(db, 'messages');
+//   const receivedQuery = query(
+//     messagesCollectionRef,
+//     where('recipientUid', '==', userUid), // Fetch received messages
+//     orderBy('date', 'desc')
+//   );
+
+//   const sentQuery = query(
+//     messagesCollectionRef,
+//     where('senderUid', '==', userUid), // Fetch sent messages
+//     orderBy('date', 'desc')
+//   );
+
+//   const allMessages: TypeMessage[] = [];
+
+//   try {
+//     const querySnapshot = await getDocs(sentQuery);
+
+//     querySnapshot.forEach((doc) => {
+//       const messageData = doc.data();
+//       allMessages.push(messageData as TypeMessage);
+//     });
+
+//     // Subscribe to changes in the received messages query
+//     const unsubscribe = onSnapshot(receivedQuery, (querySnapshot) => {
+//       querySnapshot.forEach((doc) => {
+//         allMessages.push(doc.data() as TypeMessage);
+//       });
+//       allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
+//       updateMessages([...allMessages]);
+//     });
+
+//     // Return the unsubscribe function so you can stop listening when needed
+//     return unsubscribe;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
