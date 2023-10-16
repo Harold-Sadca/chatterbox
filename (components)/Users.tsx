@@ -42,19 +42,22 @@ export default function Users() {
     dispatch(setRecipient(user));
   };
   return (
-    <div className='users-container'>
-      {users.map((user) => {
-        return (
-          <section
-            key={user.uid}
-            className='chat-recipient user'
-            onClick={() => handleSetRecipient(user)}
-          >
-            <Avatar>{user.email.split('')[0].toLocaleUpperCase()}</Avatar>
-            <p className='chat-recipient-name'>{user.email}</p>
-          </section>
-        );
-      })}
-    </div>
+    <section className='users-body'>
+      <h4>Users</h4>
+      <div className='users-container'>
+        {users.map((user) => {
+          return (
+            <section
+              key={user.uid}
+              className='chat-recipient user'
+              onClick={() => handleSetRecipient(user)}
+            >
+              <Avatar>{user.email.split('')[0].toLocaleUpperCase()}</Avatar>
+              <p className='chat-recipient-name'>{user.email}</p>
+            </section>
+          );
+        })}
+      </div>
+    </section>
   );
 }
