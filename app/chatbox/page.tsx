@@ -4,7 +4,7 @@ import ChatContainer from '@/(components)/ChatContainer';
 import Navbar from '@/(components)/Navbar';
 import Users from '@/(components)/Users';
 import { RootState } from '@/redux/store';
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 
 export default function Chatbox() {

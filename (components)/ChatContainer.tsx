@@ -8,15 +8,7 @@ import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
 import Avatar from '@mui/material/Avatar';
 import { db } from '@/firebase';
-import {
-  collection,
-  Timestamp,
-  addDoc,
-  where,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { collection, Timestamp, addDoc } from 'firebase/firestore';
 import { fetchAllMessages } from '@/utils/utils';
 import Loading from './Loading';
 import '../(css)/chatbox.css';

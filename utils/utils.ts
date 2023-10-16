@@ -3,9 +3,7 @@ import {
   collection,
   query,
   where,
-  getDocs,
   onSnapshot,
-  doc,
   orderBy,
 } from 'firebase/firestore';
 import { TypeLoggedInUser, TypeMessage } from './types';

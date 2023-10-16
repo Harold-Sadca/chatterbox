@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
 import { getUsers } from '@/utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { TypeLoggedInUser } from '@/utils/types';
 import Loading from './Loading';
 import Avatar from '@mui/material/Avatar';
-import { setUsers } from '@/redux/features/allUsersSlice';
 import { setRecipient } from '@/redux/features/recipientSlice';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { db } from '@/firebase';
 import { RootState } from '@/redux/store';
 
 const style = {

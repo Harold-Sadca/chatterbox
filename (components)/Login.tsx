@@ -19,12 +19,12 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { useDispatch } from 'react-redux';
+import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
 import { loginUser } from '@/redux/features/currentUserSlice';
 import { TypeLoggedInUser } from '@/utils/types';
 import { auth, db } from '@/firebase';
 import { signup } from '@/redux/features/loginSlice';
-import { addDoc, collection, doc, getDoc, setDoc } from 'firebase/firestore';
-import { FirebaseError } from 'firebase/app';
 
 function Copyright(props: any) {
   return (
