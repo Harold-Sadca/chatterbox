@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TypeMessage } from '@/utils/types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -26,18 +27,15 @@ export default function ChatContainer() {
     document
       .getElementById('messages-container')
       ?.scrollTo(0, document.body.scrollHeight);
-    // const messagesContainer = document.getElementById('messages-container');
-    // messagesContainer
-    //   ? (messagesContainer.scrollTop = messagesContainer.scrollHeight)
-    //   : null;
   };
 
   const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  // const [sentMessages, setSentMessages] = useState<TypeMessage[]>([]);
-  // const [receivedMessages, setReceivedMessages] = useState<TypeMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const hideBackButton = screenWidth > 1200;
 
   const handleSendMessage = async () => {
     const messagesCollectionRef = collection(db, 'messages'); // Reference the "messages" collection
@@ -65,14 +63,6 @@ export default function ChatContainer() {
     setLoading(false);
   }, [currentUser.uid]);
 
-  // useEffect(() => {
-  //   // Combine and sort messages after updates
-  //   const allMessages = [...sentMessages, ...receivedMessages];
-  //   allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
-  //   setMessages(allMessages);
-  //   console.log('com');
-  // }, [sentMessages, receivedMessages]);
-
   useEffect(() => {
     setDisplayMessage(
       messages.filter(
@@ -81,8 +71,23 @@ export default function ChatContainer() {
       )
     );
     scrollToBottom();
-    console.log('rec');
   }, [recipient.uid, messages]);
+
+  useEffect(() => {
+    // Add a window resize event listener to update the screen dimensions
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  console.log(hideBackButton);
 
   return (
     <div className='chat-container'>
@@ -97,6 +102,20 @@ export default function ChatContainer() {
                   {recipient.email.split('')[0].toLocaleUpperCase()}
                 </Avatar>
                 <p className='chat-recipient-name'>{recipient.email}</p>
+                {hideBackButton ? null : (
+                  <Button
+                    style={{
+                      backgroundColor: 'var(--primary-colour)',
+                      color: 'var(--secondary-colour)',
+                    }}
+                    className='back-button'
+                    variant='contained'
+                    onClick={() => {
+                      console.log('this');
+                    }}
+                    endIcon={<ArrowBackIcon />}
+                  ></Button>
+                )}
               </section>
               <div id='messages-container' className='messages-container'>
                 {displayMessage.map((message) =>
@@ -118,6 +137,10 @@ export default function ChatContainer() {
               <div className='input-container'>
                 <TextField
                   className='text-input'
+                  style={{
+                    backgroundColor: 'var(--background-colour)',
+                    color: 'var(--text-colour)',
+                  }}
                   fullWidth
                   label='Type your message...'
                   value={newMessage}
@@ -126,6 +149,10 @@ export default function ChatContainer() {
                 />
 
                 <Button
+                  style={{
+                    backgroundColor: 'var(--primary-colour)',
+                    color: 'var(--secondary-colour)',
+                  }}
                   className='send-button'
                   variant='contained'
                   onClick={handleSendMessage}
