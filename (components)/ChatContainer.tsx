@@ -23,10 +23,13 @@ export default function ChatContainer() {
 
   const scrollToBottom = () => {
     console.log('called');
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer
-      ? (messagesContainer.scrollTop = messagesContainer.scrollHeight)
-      : null;
+    document
+      .getElementById('messages-container')
+      ?.scrollTo(0, document.body.scrollHeight);
+    // const messagesContainer = document.getElementById('messages-container');
+    // messagesContainer
+    //   ? (messagesContainer.scrollTop = messagesContainer.scrollHeight)
+    //   : null;
   };
 
   const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
