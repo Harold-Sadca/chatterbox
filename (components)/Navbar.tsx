@@ -90,7 +90,6 @@ export default function Navbar() {
             onClose={handleClose}
           >
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
           </Menu>
         </Toolbar>
       </AppBar>
