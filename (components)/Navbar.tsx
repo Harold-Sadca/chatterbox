@@ -11,20 +11,27 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { TypeLoggedInUser } from '@/utils/types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '@/redux/features/currentUserSlice';
+import { RootState } from '@/redux/store';
 
 export default function Navbar() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  let currentUser = useSelector(
+    (state: RootState) => state.currentUserReducer.value
+  );
 
   useEffect(() => {
+    if (currentUser.uid) {
+      return;
+    }
     onAuthStateChanged(auth, (user) => {
       if (user) {
         const { email, uid } = user;
-        const loggedUser = { email, uid } as TypeLoggedInUser;
-        dispatch(loginUser(loggedUser));
+        currentUser = { email, uid } as TypeLoggedInUser;
+        dispatch(loginUser(currentUser));
       } else {
         // User is signed out
         // ...
@@ -90,6 +97,7 @@ export default function Navbar() {
             onClose={handleClose}
           >
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            <MenuItem>{currentUser.email}</MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>

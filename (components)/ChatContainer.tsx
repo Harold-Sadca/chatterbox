@@ -21,11 +21,19 @@ export default function ChatContainer() {
     (state: RootState) => state.recipientSliceReducer.value
   );
 
+  const scrollToBottom = () => {
+    console.log('called');
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer
+      ? (messagesContainer.scrollTop = messagesContainer.scrollHeight)
+      : null;
+  };
+
   const [displayMessage, setDisplayMessage] = useState<TypeMessage[]>([]);
   const [messages, setMessages] = useState<TypeMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
-  const [sentMessages, setSentMessages] = useState<TypeMessage[]>([]);
-  const [receivedMessages, setReceivedMessages] = useState<TypeMessage[]>([]);
+  // const [sentMessages, setSentMessages] = useState<TypeMessage[]>([]);
+  // const [receivedMessages, setReceivedMessages] = useState<TypeMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const handleSendMessage = async () => {
@@ -54,12 +62,13 @@ export default function ChatContainer() {
     setLoading(false);
   }, [currentUser.uid]);
 
-  useEffect(() => {
-    // Combine and sort messages after updates
-    const allMessages = [...sentMessages, ...receivedMessages];
-    allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
-    setMessages(allMessages);
-  }, [sentMessages, receivedMessages]);
+  // useEffect(() => {
+  //   // Combine and sort messages after updates
+  //   const allMessages = [...sentMessages, ...receivedMessages];
+  //   allMessages.sort((a, b) => a.date.toMillis() - b.date.toMillis());
+  //   setMessages(allMessages);
+  //   console.log('com');
+  // }, [sentMessages, receivedMessages]);
 
   useEffect(() => {
     setDisplayMessage(
@@ -68,6 +77,8 @@ export default function ChatContainer() {
           mes.senderUid === recipient.uid || mes.recipientUid === recipient.uid
       )
     );
+    scrollToBottom();
+    console.log('rec');
   }, [recipient.uid, messages]);
 
   return (
@@ -84,7 +95,7 @@ export default function ChatContainer() {
                 </Avatar>
                 <p className='chat-recipient-name'>{recipient.email}</p>
               </section>
-              <div className='messages-container'>
+              <div id='messages-container' className='messages-container'>
                 {displayMessage.map((message) =>
                   message.senderUid == currentUser.uid ? (
                     <section key={message.id} className='sent'>
