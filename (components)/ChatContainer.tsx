@@ -4,7 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TypeMessage } from '@/utils/types';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { v4 as uuid } from 'uuid';
 import Avatar from '@mui/material/Avatar';
@@ -13,6 +13,7 @@ import { collection, Timestamp, addDoc } from 'firebase/firestore';
 import { fetchAllMessages } from '@/utils/utils';
 import Loading from './Loading';
 import '../(css)/chatbox.css';
+import { removeRecipient } from '@/redux/features/recipientSlice';
 
 export default function ChatContainer() {
   const currentUser = useSelector(
@@ -22,8 +23,9 @@ export default function ChatContainer() {
     (state: RootState) => state.recipientSliceReducer.value
   );
 
+  const dispatch = useDispatch();
+
   const scrollToBottom = () => {
-    console.log('called');
     document
       .getElementById('messages-container')
       ?.scrollTo(0, document.body.scrollHeight);
@@ -111,7 +113,13 @@ export default function ChatContainer() {
                     className='back-button'
                     variant='contained'
                     onClick={() => {
-                      console.log('this');
+                      dispatch(
+                        removeRecipient({
+                          email: '',
+                          accessToken: '',
+                          uid: '',
+                        })
+                      );
                     }}
                     endIcon={<ArrowBackIcon />}
                   ></Button>

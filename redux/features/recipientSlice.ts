@@ -21,9 +21,12 @@ export const recipientSlice = createSlice({
     setRecipient: (state, action: PayloadAction<TypeLoggedInUser>) => {
       state.value = action.payload;
     },
+    removeRecipient: (state, action: PayloadAction<TypeLoggedInUser>) => {
+      state.value = action.payload;
+    },
   },
 });
 
-export const { setRecipient } = recipientSlice.actions;
+export const { setRecipient, removeRecipient } = recipientSlice.actions;
 
 export default recipientSlice.reducer;

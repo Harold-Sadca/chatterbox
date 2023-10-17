@@ -37,7 +37,8 @@ export default function Chatbox() {
     <main className='container'>
       <Navbar />
       <section className='chat-body'>
-        <Users />
+        {screenWidth > 1200 ? <Users /> : hideChat ? <Users /> : null}
+
         {hideChat ? null : <ChatContainer />}
       </section>
     </main>
